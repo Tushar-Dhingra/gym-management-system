@@ -74,6 +74,43 @@ src/
 └── index.js            # Entry point
 ```
 
+## 🧩 Key Components
+# 🔐 Authentication
+
+Login/Register forms with validation
+
+Password reset functionality
+
+Protected routes
+
+# 👥 Member Management
+
+Create new members with profile pictures
+
+Edit member information
+
+View detailed member profiles
+
+Filter and search members
+
+# 📊 Dashboard
+
+Member statistics overview
+
+Recent member activities
+
+Membership expiration tracking
+
+Visual charts and metrics
+
+## 💳 Membership Plans
+
+Basic: 1 month – $50
+
+Standard: 3 months – $120
+
+Premium: 6 months – $200
+
 ## License
 
 This project is licensed under the MIT License.
