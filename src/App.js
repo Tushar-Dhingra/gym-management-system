@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { useEffect, useState } from "react";
+import AuthContainer from "./components/Auth/AuthContainer";
+import { Route, Routes, Navigate } from "react-router-dom";
+import ProtectedLayout from "./components/Layout/ProtectedLayout";
+import { ToastContainer } from 'react-toastify';
 
-function App() {
+export default function App() {
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("isLoggedIn") || sessionStorage.getItem("isLoggedIn");
+    if (token) {
+      setIsLogin(true);
+    } else {
+      setIsLogin(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    sessionStorage.removeItem("isLoggedIn");
+    setIsLogin(false);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isLogin ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <AuthContainer onLogin={() => setIsLogin(true)} />
+            )
+          }
+        />
+        
+        <Route
+          path="/*"
+          element={
+            isLogin ? (
+              <ProtectedLayout onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+      </Routes>
+      <ToastContainer position="top-right" />
     </div>
   );
 }
-
-export default App;
