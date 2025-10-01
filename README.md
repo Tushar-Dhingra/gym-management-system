@@ -54,6 +54,7 @@ npm start
 The app will open at http://localhost:3000
 
 ## Project Structure
+```bash
 src/
 ├── components/
 │   ├── Auth/           # Authentication components
@@ -71,6 +72,7 @@ src/
 │   └── NotFound/       # 404 page
 ├── App.js              # Main app component
 └── index.js            # Entry point
+```
 
 ## License
 
