@@ -1,70 +1,116 @@
-# Getting Started with Create React App
+# Gym Management System - Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive web application for managing gym members, memberships, and operations built with React.js and Tailwind CSS.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Member Management**: Add, edit, view, and manage gym members
+- **Membership Plans**: Multiple membership types (Basic, Standard, Premium)
+- **Dashboard**: Overview of gym statistics and member insights
+- **Authentication**: Secure login/register system with password reset
+- **Profile Pictures**: Cloudinary integration for member avatars
+- **Responsive Design**: Mobile-friendly interface
+- **Real-time Updates**: Dynamic member status tracking
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Frontend**: React 19.1.1
+- **Styling**: Tailwind CSS 3.4.17
+- **Routing**: React Router DOM 7.9.3
+- **HTTP Client**: Axios 1.12.2
+- **Notifications**: React Toastify 11.0.5
+- **Image Upload**: Cloudinary
+- **Testing**: React Testing Library
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Prerequisites
 
-### `npm test`
+- Node.js (v14 or higher)
+- npm or yarn
+- Cloudinary account (for image uploads)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Installation
 
-### `npm run build`
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd gms-frontend
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+2. Install dependencies:
+```bash
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Create a .env file in the root directory:
+```bash
+REACT_APP_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+REACT_APP_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+4. Start the development server: 
+```bash
+npm start
+```
+The app will open at http://localhost:3000
 
-### `npm run eject`
+## Project Structure
+```bash
+src/
+├── components/
+│   ├── Auth/           # Authentication components
+│   ├── Dashboard/      # Dashboard widgets
+│   ├── Layout/         # Layout components
+│   ├── Members/        # Member-related components
+│   ├── Modals/         # Modal dialogs
+│   ├── Navbar/         # Navigation bar
+│   └── Sidebar/        # Sidebar navigation
+├── pages/
+│   ├── Dashboard/      # Dashboard page
+│   ├── Home/           # Home page
+│   ├── MemberDetail/   # Member detail page
+│   ├── Members/        # Members listing page
+│   └── NotFound/       # 404 page
+├── App.js              # Main app component
+└── index.js            # Entry point
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 🧩 Key Components
+# 🔐 Authentication
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Login/Register forms with validation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Password reset functionality
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Protected routes
 
-## Learn More
+# 👥 Member Management
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Create new members with profile pictures
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Edit member information
 
-### Code Splitting
+View detailed member profiles
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Filter and search members
 
-### Analyzing the Bundle Size
+# 📊 Dashboard
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Member statistics overview
 
-### Making a Progressive Web App
+Recent member activities
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Membership expiration tracking
 
-### Advanced Configuration
+Visual charts and metrics
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 💳 Membership Plans
 
-### Deployment
+Basic: 1 month – $50
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Standard: 3 months – $120
 
-### `npm run build` fails to minify
+Premium: 6 months – $200
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## License
+
+This project is licensed under the MIT License.
