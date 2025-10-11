@@ -31,6 +31,7 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         credentials: "include",
       });
@@ -84,7 +85,7 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
         toast.error(data.message);
       }
     } catch (error) {
-      toast.error( "An error occurred while deleting the membership");
+      toast.error("An error occurred while deleting the membership");
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       }
@@ -196,6 +197,7 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
         method,
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         credentials: "include",
         body: JSON.stringify({
@@ -223,7 +225,7 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
           ? "Error updating membership"
           : "Error creating membership"
       );
-      if(error.response?.data?.message){
+      if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       }
       console.error("Error with membership:", error);
@@ -316,9 +318,9 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
 
         {/* Create New Membership Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-<h3 className="text-lg font-medium text-gray-900">
-  {editingMembership ? "Update Membership" : "Create New Membership"}
-</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            {editingMembership ? "Update Membership" : "Create New Membership"}
+          </h3>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -380,23 +382,22 @@ const CreateMembershipModal = ({ isOpen, onClose, onSubmit }) => {
             )}
           </div>
 
-{/* At the bottom of the form */}
-<div className="flex justify-end space-x-3 pt-4">
-  <button
-    type="button"
-    onClick={editingMembership ? cancelEdit : onClose}
-    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-  >
-    {editingMembership ? "Cancel Edit" : "Cancel"}
-  </button>
-  <button
-    type="submit"
-    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-  >
-    {editingMembership ? "Update Membership" : "Create Membership"}
-  </button>
-</div>
-
+          {/* At the bottom of the form */}
+          <div className="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={editingMembership ? cancelEdit : onClose}
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              {editingMembership ? "Cancel Edit" : "Cancel"}
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              {editingMembership ? "Update Membership" : "Create Membership"}
+            </button>
+          </div>
         </form>
       </div>
     </Modal>
