@@ -9,20 +9,22 @@ import MembersList from '../../pages/Members/MembersList';
 import MemberDetail from '../../pages/MemberDetail/MemberDetail';
 import Home from '../../pages/Home/Home';
 import NotFound from '../../pages/NotFound/NotFound';
+import Analytics from '../../pages/Analytics/Analytics';
 
-const ProtectedLayout = ({ onLogout }) => {
+const ProtectedLayout = ({ onLogout, userData }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar 
+        userData={userData} 
         onLogout={onLogout} 
         isOpen={sidebarOpen} 
         setIsOpen={setSidebarOpen}
       />
       
       <div className="flex-1 flex flex-col">
-        <Navbar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+        <Navbar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} userData={userData} />
         
         <div className="flex-1">
           <Routes>
@@ -31,8 +33,7 @@ const ProtectedLayout = ({ onLogout }) => {
             <Route path="/members" element={<Members />} />
             <Route path="/members/:type" element={<MembersList />} />
             <Route path="/member/:id" element={<MemberDetail />} />
-            <Route path="/analytics" element={<div>Analytics Page</div>} />
-            <Route path="/settings" element={<div>Settings Page</div>} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

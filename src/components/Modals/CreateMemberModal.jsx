@@ -1,47 +1,54 @@
 // src/components/Modals/CreateMemberModal.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { memberService } from '../../services/memberService';
+import { membershipService } from '../../services/membershipService';
 
 const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
   
   const [formData, setFormData] = useState({
+    memberId: '',
     name: '',
-    phone: '',
+    mobile: '',
     email: '',
-    membershipType: '',
-    joinDate: new Date().toISOString().split('T')[0],
-    expiryDate: '',
-    avatar: ''
+    membershipId: '',
+    lastPayment: new Date().toISOString().split('T')[0],
+    status: 'active',
+    profilePic: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [memberships, setMemberships] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
 
-  const membershipTypes = [
-    { name: 'Basic', months: 1, price: 50 },
-    { name: 'Standard', months: 3, price: 120 },
-    { name: 'Premium', months: 6, price: 200 }
-  ];
+  useEffect(() => {
+    if (isOpen) {
+      fetchMemberships();
+    }
+  }, [isOpen]);
+
+// fetchMemberships function:
+const fetchMemberships = async () => {
+  setLoading(true);
+  try {
+    const data = await membershipService.getAllMemberships();
+    if (data.success) {
+      setMemberships(data.memberships);
+    }
+  } catch (error) {
+    console.error("Error fetching memberships:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => {
-      const updated = { ...prev, [name]: value };
-      
-      // Auto-calculate expiry date when membership type or join date changes
-      if (name === 'membershipType' || name === 'joinDate') {
-        const selectedType = membershipTypes.find(type => type.name === (name === 'membershipType' ? value : updated.membershipType));
-        if (selectedType && updated.joinDate) {
-          const joinDate = new Date(updated.joinDate);
-          const expiryDate = new Date(joinDate);
-          expiryDate.setMonth(expiryDate.getMonth() + selectedType.months);
-          updated.expiryDate = expiryDate.toISOString().split('T')[0];
-        }
-      }
-      
-      return updated;
-    });
+    setFormData(prev => ({ ...prev, [name]: value }));
     
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -68,14 +75,15 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
         );
         
         if (response.data?.secure_url) {
-          setFormData(prev => ({ ...prev, avatar: response.data.secure_url }));
-          if (errors.avatar) {
-            setErrors(prev => ({ ...prev, avatar: '' }));
+          setFormData(prev => ({ ...prev, profilePic: response.data.secure_url }))
+
+          if (errors.profilePic) {
+            setErrors(prev => ({ ...prev, profilePic: '' }));
           }
         }
       } catch (error) {
         if (error.response?.status !== 401) {
-          setErrors(prev => ({ ...prev, avatar: 'Upload failed' }));
+          setErrors(prev => ({ ...prev, profilePic: 'Upload failed' }));
         }
       } finally {
         setIsLoading(false);
@@ -85,14 +93,15 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.memberId.trim()) newErrors.memberId = 'Member ID is required';
     if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.membershipType) newErrors.membershipType = 'Membership type is required';
-    if (!formData.joinDate) newErrors.joinDate = 'Join date is required';
+    if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
+    if (!formData.membershipId) newErrors.membershipId = 'Membership type is required';
+    if (!formData.lastPayment) newErrors.lastPayment = 'Last payment date is required';
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validateForm();
     
@@ -101,28 +110,35 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
       return;
     }
     
-    const memberData = {
-      ...formData,
-      status: 'active',
-      plan: formData.membershipType,
-      avatar: formData.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
-    };
-
-    if (onSubmit) {
-      onSubmit(memberData);
-    }
+    setIsLoading(true);
     
-    setFormData({
-      name: '',
-      phone: '',
-      email: '',
-      membershipType: '',
-      joinDate: new Date().toISOString().split('T')[0],
-      expiryDate: '',
-      avatar: ''
-    });
-    setErrors({});
-    setPreviewImage(null);
+    try {
+      const response = await memberService.registerMember(formData);
+      
+      if (response.success) {
+        toast.success(response.message || 'Member registered successfully');
+        if (onSubmit) {
+          onSubmit(response.data);
+        }
+        onClose();
+        setFormData({
+          memberId: '',
+          name: '',
+          mobile: '',
+          email: '',
+          membershipId: '',
+          lastPayment: new Date().toISOString().split('T')[0],
+          status: 'active',
+          profilePic: ''
+        });
+        setErrors({});
+        setPreviewImage(null);
+      }
+    } catch (error) {
+      toast.error(error.message || 'Failed to register member');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -157,6 +173,19 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
         </div>
 
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Member ID *</label>
+          <input
+            type="text"
+            name="memberId"
+            value={formData.memberId}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.memberId ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Enter member ID (e.g., GYM0131)"
+          />
+          {errors.memberId && <p className="text-red-500 text-sm mt-1">{errors.memberId}</p>}
+        </div>
+
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
           <input
             type="text"
@@ -170,16 +199,16 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number *</label>
           <input
             type="tel"
-            name="phone"
-            value={formData.phone}
+            name="mobile"
+            value={formData.mobile}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.phone ? 'border-red-500' : 'border-gray-300'}`}
-            placeholder="Enter phone number"
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.mobile ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Enter mobile number"
           />
-          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+          {errors.mobile && <p className="text-red-500 text-sm mt-1">{errors.mobile}</p>}
         </div>
 
         <div>
@@ -197,44 +226,34 @@ const CreateMemberModal = ({ isOpen, onClose, onSubmit}) => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Membership Type *</label>
           <select
-            name="membershipType"
-            value={formData.membershipType}
+            name="membershipId"
+            value={formData.membershipId}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.membershipType ? 'border-red-500' : 'border-gray-300'}`}
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.membershipId ? 'border-red-500' : 'border-gray-300'}`}
+            disabled={loading}
           >
-            <option value="">Select membership type</option>
-            {membershipTypes.map(type => (
-              <option key={type.name} value={type.name}>
-                {type.name} - {type.months} month(s) - ${type.price}
+            <option value="">
+              {loading ? "Loading memberships..." : "Select membership type"}
+            </option>
+            {memberships.map(membership => (
+              <option key={membership._id} value={membership._id}>
+                {membership.name} - {membership.months} month(s) - ${membership.price}
               </option>
             ))}
           </select>
-          {errors.membershipType && <p className="text-red-500 text-sm mt-1">{errors.membershipType}</p>}
+          {errors.membershipId && <p className="text-red-500 text-sm mt-1">{errors.membershipId}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Join Date *</label>
-            <input
-              type="date"
-              name="joinDate"
-              value={formData.joinDate}
-              onChange={handleChange}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.joinDate ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.joinDate && <p className="text-red-500 text-sm mt-1">{errors.joinDate}</p>}
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-            <input
-              type="date"
-              name="expiryDate"
-              value={formData.expiryDate}
-              readOnly
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
-            />
-          </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Last Payment Date *</label>
+          <input
+            type="date"
+            name="lastPayment"
+            value={formData.lastPayment}
+            onChange={handleChange}
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.lastPayment ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          {errors.lastPayment && <p className="text-red-500 text-sm mt-1">{errors.lastPayment}</p>}
         </div>
 
         <div className="flex justify-end space-x-3 pt-4">

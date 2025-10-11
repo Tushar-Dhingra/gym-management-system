@@ -4,13 +4,13 @@ import {
   HomeIcon, 
   UsersIcon, 
   ChartBarIcon, 
-  CogIcon, 
+  // CogIcon, 
   LogoutIcon
 } from './SidebarIcons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const Sidebar = ({ onLogout, isOpen, setIsOpen }) => {
+const Sidebar = ({ userData, onLogout, isOpen, setIsOpen }) => {
   const [greeting, setGreeting] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,7 +32,7 @@ const Sidebar = ({ onLogout, isOpen, setIsOpen }) => {
     { icon: HomeIcon, label: 'Dashboard', path: '/dashboard' },
     { icon: UsersIcon, label: 'Members', path: '/members' },
     { icon: ChartBarIcon, label: 'Analytics', path: '/analytics' },
-    { icon: CogIcon, label: 'Settings', path: '/settings' },
+    // { icon: CogIcon, label: 'Settings', path: '/settings' },
   ];
 
   const handleNavigation = (path) => {
@@ -69,14 +69,24 @@ const Sidebar = ({ onLogout, isOpen, setIsOpen }) => {
         {/* Gym Header */}
         <div className="p-6 border-b border-gray-700/50">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+            {/* <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
               <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clipRule="evenodd" />
               </svg>
-            </div>
+            </div> */}
+            <div className="relative w-11 h-11 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+          {/* Dumbbell Icon */}
+          <svg className="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.57 14.86L22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+          </svg>
+          {/* Background Text */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-20">
+            <span className="text-xl font-black text-white tracking-tighter">FZ</span>
+          </div>
+        </div>
             <div>
               <h1 className="text-xl font-bold text-white">FitZone Pro</h1>
-              <p className="text-xs text-gray-400">Gym Management</p>
+              <p className="text-sm text-gray-400">{userData?.gymName}</p>
             </div>
           </div>
         </div>
@@ -86,16 +96,16 @@ const Sidebar = ({ onLogout, isOpen, setIsOpen }) => {
           <div className="flex items-center space-x-4">
             <div className="relative">
               <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"
+                src={userData?.profilePic?.url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"}
                 alt="Admin"
                 className="w-16 h-16 rounded-full border-3 border-blue-500/30 shadow-lg"
               />
               <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-gray-900"></div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">John Smith</p>
-              <p className="text-xs text-gray-400">Gym Administrator</p>
-              <p className="text-xs text-blue-400 mt-1">{greeting}! 👋</p>
+              {/* <p className="text-sm font-medium text-white truncate">{userData?.gymName}</p> */}
+              <p className="text-sm font-bold text-gray-400">Gym Administrator</p>
+              <p className="text-base text-blue-400 mt-1">{greeting}! <div className='text-base text-gray-400'>{userData?.email?.split('@')[0]}👋</div></p>
             </div>
           </div>
         </div>
@@ -147,7 +157,7 @@ const Sidebar = ({ onLogout, isOpen, setIsOpen }) => {
 
         {/* Footer */}
         <div className="p-4 text-center">
-          <p className="text-xs text-gray-500">© 2024 FitZone Pro</p>
+          <p className="text-xs text-gray-500">© 2025 FitZone Pro</p>
         </div>
       </div>
     </>

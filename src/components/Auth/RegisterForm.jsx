@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import FormInput from './FormInput';
 import Button from './Button';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const RegisterForm = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -27,7 +28,6 @@ const RegisterForm = ({ onSwitchToLogin }) => {
 const handleImageChange = async (e) => {
   const file = e.target.files[0];
   if (file) {
-    console.log('File selected:', file.name);
     
     const reader = new FileReader();
     reader.onloadend = () => setPreviewImage(reader.result);
@@ -89,27 +89,55 @@ const handleImageChange = async (e) => {
     return newErrors;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newErrors = validateForm();
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const newErrors = validateForm();
+  
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    return;
+  }
+  
+  setIsLoading(true);
+  
+  try {
+    const apiUrl = process.env.REACT_APP_API_URL;
+    const response = await fetch(`${apiUrl}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email: formData.email,
+        // userName: formData.email.split('@')[0], // Generate username from email
+        password: formData.password,
+        gymName: formData.gymName,
+        profilePic: formData.profilePic,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      toast.success(data.message);
+      onSwitchToLogin(); // Switch to login form after successful registration
+    } else {
+      toast.error(data.message);
     }
-    
-    setIsLoading(true);
-    try {
-      // API call would go here
-      console.log('Register:', formData);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    } catch (error) {
-      console.error('Register error:', error);
-    } finally {
-      setIsLoading(false);
+
+  } catch (error) {
+    const errMsg = error.message ||"Something went wrong. Please try again later.";
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
     }
-  };
+    toast.error(errMsg);
+    setErrors({ password: 'Failed to register. Please try again.' });
+    console.error('Register error:', error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div>

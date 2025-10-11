@@ -1,6 +1,9 @@
 // src/pages/MemberDetail/MemberDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { memberService } from '../../services/memberService';
+import { membershipService } from '../../services/membershipService';
+import { toast } from 'react-toastify';
 
 const MemberDetail = () => {
   const { id } = useParams();
@@ -9,66 +12,83 @@ const MemberDetail = () => {
   const [loading, setLoading] = useState(true);
   const [showRenewalOptions, setShowRenewalOptions] = useState(false);
   const [selectedMembershipType, setSelectedMembershipType] = useState('');
+  const [currentBillDate, setCurrentBillDate] = useState('');
+  const [memberships, setMemberships] = useState([]);
+  const [loadingMemberships, setLoadingMemberships] = useState(false);
 
-  const membershipTypes = [
-    { value: 'basic', label: 'Basic - $29/month' },
-    { value: 'premium', label: 'Premium - $49/month' },
-    { value: 'vip', label: 'VIP - $79/month' }
-  ];
-
-  // Mock member data - replace with API call
-  useEffect(() => {
-    const mockMember = {
-      id: parseInt(id),
-      name: "John Doe",
-      email: "john@email.com",
-      phone: "+1234567890",
-      address: "123 Main St, City, State 12345",
-      plan: "Premium",
-      status: "active",
-      joinDate: "2024-01-15",
-      nextBillDate: "2024-07-15",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face"
-    };
-    
-    setTimeout(() => {
-      setMember(mockMember);
+useEffect(() => {
+  const fetchMemberDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await memberService.getMemberById(id);
+      setMember(response.data);
+    } catch (error) {
+      toast.error(error.message || 'Failed to fetch member details');
+    } finally {
       setLoading(false);
-    }, 500);
-  }, [id]);
-
-  const toggleStatus = () => {
-    setMember(prev => ({
-      ...prev,
-      status: prev.status === 'active' ? 'inactive' : 'active'
-    }));
-    setShowRenewalOptions(false);
+    }
   };
 
-  const handleRenew = () => {
+  fetchMemberDetails();
+}, [id]);
+
+  const fetchMemberships = async () => {
+    try {
+      setLoadingMemberships(true);
+      const response = await membershipService.getAllMemberships();
+      setMemberships(response.memberships || []);
+    } catch (error) {
+      toast.error(error.message || 'Failed to fetch memberships');
+    } finally {
+      setLoadingMemberships(false);
+    }
+  };
+
+  const toggleStatus = async () => {
+    try {
+      const newStatus = member.status === 'active' ? 'inactive' : 'active';
+      const response = await memberService.updateMemberStatus(id, newStatus);
+      setMember(response.data);
+      toast.success('Member status updated successfully');
+      setShowRenewalOptions(false);
+    } catch (error) {
+      toast.error(error.message || 'Failed to update member status');
+    }
+  };
+
+  const handleRenew = async () => {
     if (member.status === 'active') {
       setShowRenewalOptions(true);
+      setCurrentBillDate(new Date().toISOString().split('T')[0]);
+      // Fetch memberships when renewal options are shown
+      await fetchMemberships();
     }
   };
 
   const handleSaveRenewal = async () => {
-    if (!selectedMembershipType) return;
+    if (!selectedMembershipType || !currentBillDate) {
+      toast.error('Please select membership type and bill date');
+      return;
+    }
     
     try {
-      const response = await fetch(`/api/members/${id}/renew`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ membershipType: selectedMembershipType })
-      });
-      
-      if (response.ok) {
-        alert('Membership renewed successfully!');
-        setShowRenewalOptions(false);
-        setSelectedMembershipType('');
-      }
+      const response = await memberService.renewMembership(id, selectedMembershipType, currentBillDate);
+      setMember(response.data);
+      toast.success('Member plan renewed successfully');
+      setShowRenewalOptions(false);
+      setSelectedMembershipType('');
+      setCurrentBillDate('');
+      setMemberships([]);
     } catch (error) {
-      alert('Failed to renew membership');
+      toast.error(error.message || 'Failed to renew membership');
     }
+  };
+
+  const handleCancelRenewal = () => {
+    setShowRenewalOptions(false);
+    setSelectedMembershipType('');
+    setCurrentBillDate('');
+    setMemberships([]);
   };
 
   if (loading) {
@@ -121,13 +141,13 @@ const MemberDetail = () => {
             <div className="lg:col-span-1 bg-gray-50 p-8 flex flex-col items-center justify-center">
               <div className="w-48 h-48 rounded-full overflow-hidden mb-6 shadow-lg">
                 <img
-                  src={member.avatar}
+                  src={member.profilePic?.url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face'}
                   alt={member.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               <h2 className="text-xl font-bold text-gray-900 text-center">{member.name}</h2>
-              <p className="text-gray-600 text-center mt-1">{member.plan} Member</p>
+              <p className="text-gray-600 text-center mt-1">{member.membership?.name} Member</p>
             </div>
 
             {/* Right Column - Details */}
@@ -142,16 +162,16 @@ const MemberDetail = () => {
                       <p className="text-gray-900 font-medium">{member.name}</p>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Mobile</label>
-                      <p className="text-gray-900 font-medium">{member.phone}</p>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Member ID</label>
+                      <p className="text-gray-900 font-medium">{member.memberId}</p>
                     </div>
-                    <div className="md:col-span-2">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Mobile</label>
+                      <p className="text-gray-900 font-medium">{member.mobile}</p>
+                    </div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Email</label>
                       <p className="text-gray-900 font-medium">{member.email}</p>
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Address</label>
-                      <p className="text-gray-900 font-medium">{member.address}</p>
                     </div>
                   </div>
                 </div>
@@ -161,12 +181,20 @@ const MemberDetail = () => {
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Membership Information</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-500 mb-1">Join Date</label>
-                      <p className="text-gray-900 font-medium">{member.joinDate}</p>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Plan</label>
+                      <p className="text-gray-900 font-medium">{member.membership?.name} - ${member.membership?.price}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Duration</label>
+                      <p className="text-gray-900 font-medium">{member.membership?.months} month(s)</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Last Payment</label>
+                      <p className="text-gray-900 font-medium">{new Date(member.lastPayment).toDateString()}</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-500 mb-1">Next Bill Date</label>
-                      <p className="text-gray-900 font-medium">{member.nextBillDate}</p>
+                      <p className="text-gray-900 font-medium">{new Date(member.nextBillDate).toDateString()}</p>
                     </div>
                   </div>
                 </div>
@@ -202,7 +230,8 @@ const MemberDetail = () => {
                     
                     <button
                       onClick={handleRenew}
-                      className={`${ member.status === 'active' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400' }  text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2 `}
+                      className={`${member.status === 'active' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400'} text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center space-x-2`}
+                      disabled={member.status !== 'active'}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -210,35 +239,57 @@ const MemberDetail = () => {
                       <span>Renew Membership</span>
                     </button>
                   </div>
-
-                  {/* Membership Type Dropdown - Only visible after clicking Renew and status is active */}
-                  {showRenewalOptions && member.status === 'active' && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Membership Type
-                      </label>
-                      <select
-                        value={selectedMembershipType}
-                        onChange={(e) => setSelectedMembershipType(e.target.value)}
-                        className="w-full px-3 py-2 mb-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      >
-                        <option value="">Choose membership type...</option>
-                        {membershipTypes.map((type) => (
-                          <option key={type.value} value={type.value}>
-                            {type.label}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={handleSaveRenewal}
-                        disabled={!selectedMembershipType}
-                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                      >
-                        Save Renewal
-                      </button>
-                    </div>
-                  )}
                 </div>
+
+                {/* Renewal Options */}
+                {showRenewalOptions && (
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Renew Membership</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Membership Type</label>
+                        <select
+                          value={selectedMembershipType}
+                          onChange={(e) => setSelectedMembershipType(e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          disabled={loadingMemberships}
+                        >
+                          <option value="">
+                            {loadingMemberships ? 'Loading memberships...' : 'Select membership type'}
+                          </option>
+                          {memberships.map((membership) => (
+                            <option key={membership._id} value={membership._id}>
+                              {membership.name} - ${membership.price} ({membership.months} month{membership.months > 1 ? 's' : ''})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Bill Date</label>
+                        <input
+                          type="date"
+                          value={currentBillDate}
+                          onChange={(e) => setCurrentBillDate(e.target.value)}
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div className="flex space-x-3">
+                        <button
+                          onClick={handleSaveRenewal}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          Save Renewal
+                        </button>
+                        <button
+                          onClick={handleCancelRenewal}
+                          className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -4,14 +4,23 @@ import React from 'react';
 const MemberCard = ({ member, onView, onEdit }) => {
   const statusColors = {
     active: 'bg-green-100 text-green-800',
+    inactive: 'bg-red-100 text-gray-800',
     expired: 'bg-red-100 text-red-800',
     expiring: 'bg-yellow-100 text-yellow-800'
   };
 
+    const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   const planColors = {
-    Basic: 'bg-gray-100 text-gray-800',
-    Standard: 'bg-blue-100 text-blue-800',
-    Premium: 'bg-purple-100 text-purple-800'
+    Monthly: 'bg-gray-100 text-gray-800',
+    Quarterly: 'bg-blue-100 text-blue-800',
+    Annual: 'bg-purple-100 text-purple-800',
   };
 
   return (
@@ -40,13 +49,13 @@ const MemberCard = ({ member, onView, onEdit }) => {
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-500">Plan:</span>
-          <span className={`px-2 py-1 text-xs font-medium rounded ${planColors[member.plan]}`}>
+          <span className={`px-2 py-1 text-xs font-medium rounded ${planColors[member.plan] || 'bg-gray-100 text-gray-800'}`}>
             {member.plan}
           </span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-500">Expires:</span>
-          <span className="text-gray-900">{member.expiryDate}</span>
+          <span className="text-gray-900">{formatDate(member.expiryDate)}</span>
         </div>
       </div>
 
