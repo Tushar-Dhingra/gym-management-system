@@ -32,9 +32,7 @@ export const memberService = {
 
   async getAnalytics() {
     const response = await fetch(`${API_BASE_URL}/members/analytics`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: getAuthHeaders(),
       credentials: "include",
     });
 
