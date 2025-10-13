@@ -6,15 +6,23 @@
     </linearGradient>
   </defs>
   
+  <!-- Background Circle -->
   <circle cx="100" cy="100" r="90" fill="url(#gymGradient)" />
   
+  <!-- Dumbbell Icon -->
   <g fill="white" transform="translate(100,100)">
+    <!-- Left weight -->
     <rect x="-45" y="-15" width="20" height="30" rx="3" />
+    <!-- Right weight -->
     <rect x="25" y="-15" width="20" height="30" rx="3" />
+    <!-- Handle -->
     <rect x="-25" y="-3" width="50" height="6" rx="3" />
+    <!-- Left connector -->
     <rect x="-25" y="-8" width="8" height="16" rx="2" />
+    <!-- Right connector -->
     <rect x="17" y="-8" width="8" height="16" rx="2" />
   </g>
   
+  <!-- Text -->
   <text x="100" y="160" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" font-weight="bold">GMS</text>
 </svg>
