@@ -4,7 +4,7 @@ A modern, responsive web application for managing gym members, memberships, and 
 
 ### 🔑 Demo Credentials
 
-Use these demo credentials to log in and explore the system:
+Use these demo credentials to log in and explore the system-
 Email: dhingratushar512@gmail.com
 Password: Test@123
 
