@@ -2,6 +2,19 @@
 
 A modern, responsive web application for managing gym members, memberships, and operations built with React.js and Tailwind CSS.
 
+### 🔑 Demo Credentials
+
+Use these demo credentials to log in and explore the system:
+Email: dhingratushar512@gmail.com
+Password: Test@123
+
+## 🎥 Demo Video
+
+🎬 Watch the full demo here: 
+
+https://github.com/user-attachments/assets/188057e9-b0f4-4869-8630-9d828456f618
+
+
 ## Features
 
 - **Member Management**: Add, edit, view, and manage gym members
