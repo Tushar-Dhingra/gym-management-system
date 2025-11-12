@@ -11,7 +11,7 @@ const SearchBar = ({ searchTerm, setSearchTerm }) => {
       </div>
       <input
         type="text"
-        placeholder="Search members by name, email, or phone..."
+        placeholder="Search members..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
