@@ -1,5 +1,5 @@
 // src/pages/Analytics/Analytics.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { memberService } from "../../services/memberService";
 import { toast } from "react-toastify";
 import {
@@ -55,11 +55,7 @@ const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
   const { showLoading, hideLoading } = useLoading();
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
       showLoading();
       const response = await memberService.getAnalytics();
@@ -69,7 +65,11 @@ const Analytics = () => {
     } finally {
       hideLoading();
     }
-  };
+  }, [showLoading, hideLoading]);
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
 
   if (!analytics) {

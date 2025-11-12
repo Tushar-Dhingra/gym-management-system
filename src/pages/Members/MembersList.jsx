@@ -14,7 +14,7 @@ const MembersList = () => {
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
 
-  const fetchMembers = async (page = 1, append = false) => {
+  const fetchMembers = useCallback(async (page = 1, append = false) => {
     try {
       if (page === 1) setLoading(true);
       else setLoadingMore(true);
@@ -34,7 +34,7 @@ const MembersList = () => {
       setLoading(false);
       setLoadingMore(false);
     }
-  };
+  }, [type]);
 
   const lastMemberElementRef = useCallback(node => {
     if (loading || loadingMore) return;
@@ -54,13 +54,13 @@ const MembersList = () => {
     setCurrentPage(1);
     setHasMore(true);
     fetchMembers(1, false);
-  }, [type]);
+  }, [type, fetchMembers]);
 
   useEffect(() => {
     if (currentPage > 1) {
       fetchMembers(currentPage, true);
     }
-  }, [currentPage]);
+  }, [currentPage, fetchMembers]);
 
   const getPageConfig = () => {
     switch(type) {
