@@ -16,7 +16,6 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import { useLoading } from "../../contexts/LoadingContext";
 
 const StatCard = ({ title, value, change, icon, color = "blue" }) => {
   const colorClasses = {
@@ -53,19 +52,15 @@ const StatCard = ({ title, value, change, icon, color = "blue" }) => {
 
 const Analytics = () => {
   const [analytics, setAnalytics] = useState(null);
-  const { showLoading, hideLoading } = useLoading();
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      showLoading();
       const response = await memberService.getAnalytics();
       setAnalytics(response.data);
     } catch (error) {
       toast.error(error.message || "Failed to fetch analytics");
-    } finally {
-      hideLoading();
     }
-  }, [showLoading, hideLoading]);
+  }, []);
 
   useEffect(() => {
     fetchAnalytics();

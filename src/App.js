@@ -3,15 +3,12 @@ import React, { useEffect, useState } from "react";
 import AuthContainer from "./components/Auth/AuthContainer";
 import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedLayout from "./components/Layout/ProtectedLayout";
-import Loading from "./components/common/Loading";
-import { LoadingProvider } from "./contexts/LoadingContext";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("isLoggedIn");
@@ -23,7 +20,6 @@ export default function App() {
     } else {
       setIsLogin(false);
     }
-    setIsLoading(false);
   }, []);
 
   const handleLogout = () => {
@@ -33,13 +29,8 @@ export default function App() {
     setUserData(null);
   };
 
-  if (isLoading) {
-    return <Loading />;
-  }
-
   return (
-    <LoadingProvider>
-      <div className="App">
+    <div className="App">
         <Routes>
           <Route
             path="/"
@@ -76,6 +67,5 @@ export default function App() {
           pauseOnHover
         />
       </div>
-    </LoadingProvider>
   );
 }
