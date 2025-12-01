@@ -6,8 +6,8 @@ import { toast } from "react-toastify";
 
 const LoginForm = ({ onSwitchToRegister, onForgotPassword, onLogin }) => {
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "dhingratushar512@gmail.com",
+    password: "Test@123",
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +70,7 @@ const LoginForm = ({ onSwitchToRegister, onForgotPassword, onLogin }) => {
       if (data.success) {
         localStorage.setItem("isLoggedIn", true);
         localStorage.setItem("token", data.token);
-        localStorage.setItem("userData", JSON.stringify(data.user)); 
+        localStorage.setItem("userData", JSON.stringify(data.user));
         toast.success(data.message);
         onLogin();
       } else {
