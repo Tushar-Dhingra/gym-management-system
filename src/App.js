@@ -5,14 +5,21 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedLayout from "./components/Layout/ProtectedLayout";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import ColdStartModal from "./components/Modals/ColdStartModal";
 
 export default function App() {
   const [isLogin, setIsLogin] = useState(false);
   const [userData, setUserData] = useState(null);
+  const [showColdStart, setShowColdStart] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("isLoggedIn");
     const storedUserData = localStorage.getItem("userData");
+    const hasSeenColdStart = localStorage.getItem("hasSeenColdStart");
+
+    if (!hasSeenColdStart) {
+      setShowColdStart(true);
+    }
 
     if (token && storedUserData) {
       setIsLogin(true);
@@ -21,6 +28,11 @@ export default function App() {
       setIsLogin(false);
     }
   }, []);
+
+  const handleCloseColdStart = () => {
+    setShowColdStart(false);
+    localStorage.setItem("hasSeenColdStart", "true");
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -31,41 +43,45 @@ export default function App() {
 
   return (
     <div className="App">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              isLogin ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <AuthContainer onLogin={() => setIsLogin(true)} />
-              )
-            }
-          />
-
-          <Route
-            path="/*"
-            element={
-              isLogin ? (
-                <ProtectedLayout onLogout={handleLogout} userData={userData} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-        </Routes>
-
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
+      <Routes>
+        <Route
+          path="/"
+          element={
+            isLogin ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <AuthContainer onLogin={() => setIsLogin(true)} />
+            )
+          }
         />
-      </div>
+
+        <Route
+          path="/*"
+          element={
+            isLogin ? (
+              <ProtectedLayout onLogout={handleLogout} userData={userData} />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+      </Routes>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <ColdStartModal
+        isOpen={showColdStart}
+        onClose={handleCloseColdStart}
+      />
+    </div>
   );
 }
